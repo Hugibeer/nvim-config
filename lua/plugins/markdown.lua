@@ -23,7 +23,13 @@ return {
       })
     end,
   },
-
+  {
+      'MeanderingProgrammer/render-markdown.nvim',
+      dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+      ---@module 'render-markdown'
+      ---@type render.md.UserConfig
+      opts = {},
+  },
   -- Browser live preview: Mermaid diagrams, LaTeX (KaTeX), scroll sync, no npm
   {
     "selimacerbas/markdown-preview.nvim",
