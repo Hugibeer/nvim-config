@@ -19,6 +19,19 @@ Open this from inside Neovim with `<leader>hc` or `:Cheatsheet`.
 | `<leader>?`  | which-key popup of this buffer's keymaps            |
 | `<leader>hc` | Open this cheat sheet                               |
 
+### Telescope (find)
+
+| Key          | Action                       |
+| ------------ | ---------------------------- |
+| `<leader>ff` | Find files                   |
+| `<leader>fg` | Live grep across the project |
+| `<leader>fb` | Browse open buffers          |
+| `<leader>fr` | Recent files                 |
+| `<leader>fh` | Help tags                    |
+
+Inside any picker: `<C-v>` opens the selection in a vertical split,
+`<C-x>` in a horizontal one.
+
 ### Merge conflicts (git mergetool / diff mode)
 
 | Key / Command | Action                                             |
@@ -230,26 +243,40 @@ mangling code, that path or `"+p` in Normal mode is safest.
 
 ### Windows / splits
 
-| Key            | Action                                   |
-| -------------- | ---------------------------------------- |
-| `<C-w>s`/`<C-w>v`| Split horizontal / vertical            |
-| `<C-w>h/j/k/l` | Move to split left/down/up/right         |
-| `<C-w>w`       | Cycle to next split                      |
-| `<C-w>q`       | Close split                              |
-| `<C-w>=`       | Equalize split sizes                     |
-| `<C-w>o`       | Close all other splits                   |
+| Key / Command  | Action                                     |
+| -------------- | ------------------------------------------ |
+| `:vs {file}` / `:sp {file}` | Open a file in a vertical / horizontal split |
+| `<C-w>v`/`<C-w>s`| Split current file vertical / horizontal |
+| `<C-w>h/j/k/l` | Move to split left/down/up/right           |
+| `<C-w>w`       | Cycle to next split                        |
+| `<C-w>p`       | Back to previously focused split           |
+| `<C-w>q` / `:q`| Close split (the buffer stays open)        |
+| `<C-w>o`       | Close all other splits (`:only`)           |
+| `<C-w>=`       | Equalize split sizes                       |
+| `<C-w>>` / `<C-w><` | Widen / narrow current split          |
+
+From **nvim-tree** or a **Telescope** picker: `<C-v>` opens the file under the
+cursor in a vertical split, `<C-x>` in a horizontal one.
 
 ### Buffers / tabs
 
-| Command         | Action                                  |
-| --------------- | --------------------------------------- |
-| `:e {file}`     | Open / edit a file                      |
-| `:ls`           | List buffers                            |
-| `:bn` / `:bp`   | Next / previous buffer                  |
-| `:b {name}`     | Switch to buffer by name                |
-| `:bd`           | Close buffer                            |
-| `:tabnew`       | New tab                                 |
-| `gt` / `gT`     | Next / previous tab                     |
+> A **buffer** is a file loaded in memory; a **window** is a viewport onto one.
+> Files opened via nvim-tree/Telescope stay open as buffers even when no window
+> shows them — `<leader>fb` gets you back to any of them.
+
+| Key / Command   | Action                                          |
+| --------------- | ----------------------------------------------- |
+| `<leader>fb`    | Fuzzy-pick from open buffers (Telescope)        |
+| `:e {file}`     | Open / edit a file                              |
+| `:ls`           | List buffers (`%` current, `#` alternate, `+` unsaved) |
+| `<C-^>`         | Toggle to the alternate (previous) buffer       |
+| `:bn` / `:bp`   | Next / previous buffer                          |
+| `:b {name}`     | Switch to buffer by name (Tab-completes)        |
+| `:b {n}`        | Switch to buffer number *n* (from `:ls`)        |
+| `:bd` / `:bd!`  | Close buffer (`!` discards unsaved changes)     |
+| `:%bd \| e#`    | Close all buffers except the current file       |
+| `:tabnew`       | New tab                                         |
+| `gt` / `gT`     | Next / previous tab                             |
 
 ### Marks, registers, macros, folds
 

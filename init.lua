@@ -36,7 +36,7 @@ opt.ignorecase = true
 opt.smartcase = true
 opt.termguicolors = true
 opt.conceallevel = 2 -- let render-markdown hide raw markup
-opt.wrap = true -- wrap long prose
+opt.wrap = false -- wrap long prose
 opt.linebreak = true -- wrap at word boundaries, not mid-word
 opt.breakindent = true
 

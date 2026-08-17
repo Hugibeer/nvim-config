@@ -3,13 +3,14 @@
 
 return {
   -- LSP server definitions + mason. mason-lspconfig auto-enables installed
-  -- servers via vim.lsp.enable. marksman = markdown LSP. (C# uses roslyn.nvim,
+  -- servers via vim.lsp.enable. marksman = markdown LSP, jsonls = JSON
+  -- LSP/formatter. (C# uses roslyn.nvim,
   -- which manages its own client — see csharp.lua.)
   {
     "neovim/nvim-lspconfig",
     dependencies = {
       { "mason-org/mason.nvim", opts = {} },
-      { "mason-org/mason-lspconfig.nvim", opts = { ensure_installed = { "marksman" } } },
+      { "mason-org/mason-lspconfig.nvim", opts = { ensure_installed = { "marksman", "jsonls" } } },
     },
   },
 
