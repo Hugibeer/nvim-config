@@ -1,0 +1,22 @@
+lazy-lock.json
+  h_0dbb9a9ed48df2 2-4,8-9,13,16,18-19,21-23,28-30
+lazyvim.json
+  h_0dbb9a9ed48df2 1-9
+lua/plugins/fzf.lua
+  h_0dbb9a9ed48df2 1-14
+lua/plugins/telescope.lua
+  h_0dbb9a9ed48df2 17-18,27
+lua/plugins/trouble.lua
+  h_0dbb9a9ed48df2 1-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4b79b110a02f313d982491d42cd98fb91d80ac55",
+  "prompts": {},
+  "humans": {
+    "h_0dbb9a9ed48df2": {
+      "author": "Hugibeer <hugibeer@gmail.com>"
+    }
+  }
+}
