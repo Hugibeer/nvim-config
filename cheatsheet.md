@@ -225,9 +225,9 @@ Examples: `ciw` change word, `di(` delete inside parens, `ya"` yank quoted strin
 
 **Mouse** (this config sets `mouse = "a"`): click-drag selects into Visual mode;
 that selection is on the system clipboard, so `Ctrl+V` pastes it elsewhere.
-In Insert mode, paste with your terminal's shortcut (often `Ctrl+Shift+V` /
-right-click on Windows Terminal). To paste literally without auto-indent
-mangling code, that path or `"+p` in Normal mode is safest.
+In Insert mode, paste with your terminal's shortcut (often `Cmd+V`). To paste
+literally without auto-indent mangling code, that path or `"+p` in Normal
+mode is safest.
 
 ### Search & replace
 

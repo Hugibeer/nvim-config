@@ -29,6 +29,8 @@ return {
       -- show git-ignored files (LocalOnly/ etc.); `I` in the tree toggles this
       git = { ignore = false },
       sync_root_with_cwd = true,
+      -- auto-reveal/highlight the current buffer's file whenever the tree is open
+      update_focused_file = { enable = true },
       view = { width = 34 },
       renderer = { group_empty = true },
     },

@@ -10,28 +10,7 @@ local opt = vim.opt
 opt.number = true
 opt.relativenumber = true
 opt.mouse = "a"
-opt.clipboard = "unnamedplus"
-
--- Pin the clipboard provider to win32yank by absolute path so nvim never falls
--- back to OSC 52 (which terminals cap ~4 KB and silently truncate large yanks).
--- List form avoids quoting issues with the space in "Program Files".
-do
-  local win32yank = "C:/Program Files/Neovim/bin/win32yank.exe"
-  if vim.fn.executable(win32yank) == 1 then
-    vim.g.clipboard = {
-      name = "win32yank",
-      copy = {
-        ["+"] = { win32yank, "-i", "--crlf" },
-        ["*"] = { win32yank, "-i", "--crlf" },
-      },
-      paste = {
-        ["+"] = { win32yank, "-o", "--lf" },
-        ["*"] = { win32yank, "-o", "--lf" },
-      },
-      cache_enabled = 0,
-    }
-  end
-end
+opt.clipboard = "unnamedplus" -- macOS: nvim auto-detects pbcopy/pbpaste
 opt.ignorecase = true
 opt.smartcase = true
 opt.termguicolors = true
@@ -39,6 +18,9 @@ opt.conceallevel = 2 -- let render-markdown hide raw markup
 opt.wrap = false -- wrap long prose
 opt.linebreak = true -- wrap at word boundaries, not mid-word
 opt.breakindent = true
+-- noselect: the completion menu shows without auto-inserting/pre-selecting
+-- the first match, so typing keeps filtering instead of fighting a prefill.
+opt.completeopt = "menu,menuone,noselect"
 
 -- Per-filetype markdown tweaks: native treesitter highlight (bundled 0.12
 -- parser), spell check + 2-space indent
@@ -58,6 +40,8 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.keymap.set("n", "<leader>uw", function()
   vim.opt_local.wrap = not vim.opt_local.wrap:get()
 end, { desc = "Toggle word wrap" })
+
+vim.keymap.set("n", "gl", vim.diagnostic.open_float, { desc = "Line diagnostics" })
 
 -- Diff/merge navigation: ]c / [c need AltGr on the Croatian layout, so mirror
 -- them on function keys (used mainly inside `git mergetool`).
@@ -87,7 +71,6 @@ vim.keymap.set("n", "<leader>mr", diffget_from("REMOTE"), { desc = "Merge: take 
 vim.keymap.set("n", "<leader>mb", diffget_from("BASE"), { desc = "Merge: take BASE (ancestor)" })
 
 -- Cheat sheet: open cheatsheet.md (in this config dir) in a vertical split.
--- stdpath("config") resolves to the repo via the AppData\Local\nvim junction.
 local function open_cheatsheet()
   local path = vim.fs.joinpath(vim.fn.stdpath("config"), "cheatsheet.md")
   vim.cmd("split " .. vim.fn.fnameescape(path))
@@ -110,6 +93,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
     map("gr", vim.lsp.buf.references, "References")
     map("<leader>rn", vim.lsp.buf.rename, "Rename")
     map("<leader>ca", vim.lsp.buf.code_action, "Code action")
+    -- visual-mode variant: passes the selection range so the LSP can offer
+    -- selection-based refactors (extract method/variable, etc.), like VS's
+    -- Quick Actions lightbulb.
+    vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, { buffer = buf, desc = "Code action (selection)" })
     local client = vim.lsp.get_client_by_id(args.data.client_id)
     if client and client:supports_method("textDocument/completion") then
       vim.lsp.completion.enable(true, client.id, buf, { autotrigger = true })

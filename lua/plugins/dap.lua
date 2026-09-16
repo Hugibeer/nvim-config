@@ -63,6 +63,16 @@ return {
             return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
           end,
         },
+        {
+          -- For a process already started with `dotnet run` (e.g. GSCLite's web app,
+          -- or something started outside nvim-dap entirely). Filtered to "GSCLite" by
+          -- default since that's the apphost name this repo's web app runs as; widen
+          -- or drop the filter to attach to something else.
+          type = "coreclr",
+          name = "attach - netcoredbg",
+          request = "attach",
+          processId = function() return require("dap.utils").pick_process({ filter = "GSCLite" }) end,
+        },
       }
     end,
   },

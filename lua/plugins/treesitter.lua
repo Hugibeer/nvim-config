@@ -15,5 +15,19 @@ return {
       -- the WinLibs gcc instead (no MSVC on this machine).
       vim.env.CC = vim.env.CC or "gcc"
     end,
+    config = function()
+      -- Angular/TS project (web-workspace): ts/tsx for .ts, "angular" for
+      -- component templates (filetype "htmlangular", see web.lua) — it
+      -- layers Angular's `@if`/`@for`/`@switch` block syntax on top of html.
+      require("nvim-treesitter").install({
+        "typescript",
+        "tsx",
+        "html",
+        "angular",
+        "scss",
+        "json",
+        "jsdoc",
+      })
+    end,
   },
 }
