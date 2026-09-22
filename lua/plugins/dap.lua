@@ -1,5 +1,20 @@
--- Debugging for .NET via nvim-dap + netcoredbg (installed by mason-tool-installer
--- in lsp.lua). nvim-dap-ui gives a variables/scopes/watches panel.
+-- Generic nvim-dap host (dapui, signs, keymaps) for any language that plugs into it.
+--
+-- .NET/C# debugging is NOT configured here — easy-dotnet.nvim (dotnet.lua) owns it
+-- entirely. Its `debugger.auto_register_dap` (on by default) injects a working
+-- "easy-dotnet" entry into `dap.configurations.cs` itself, backed by its own
+-- RPC build server, which launches the app and a version-matched netcoredbg
+-- server-side and hands nvim-dap a TCP port to connect to — no local process
+-- spawn/attach from Neovim's side at all.
+--
+-- A hand-rolled `dap.adapters.coreclr` + launch/attach configs used to live here,
+-- pointed at the mason-installed netcoredbg. Removed: that netcoredbg build
+-- (3.1.3-1062) doesn't speak net10.0's debug protocol (launch failed at
+-- `configurationDone` every time), and separately, attach-to-an-already-running
+-- process hits a Jamf-enforced macOS kernel restriction on task_for_pid on this
+-- machine (confirmed via EXC_GUARD kills, even for Apple's own signed lldb).
+-- easy-dotnet's socket-based approach sidesteps both problems, so there's
+-- nothing coreclr-specific left to configure — this file is adapter-agnostic.
 return {
   {
     "mfussenegger/nvim-dap",
@@ -35,45 +50,6 @@ return {
       -- Gutter signs
       vim.fn.sign_define("DapBreakpoint", { text = "●", texthl = "DiagnosticError", numhl = "" })
       vim.fn.sign_define("DapStopped", { text = "▶", texthl = "DiagnosticWarn", linehl = "Visual" })
-
-      -- Resolve the mason-installed netcoredbg.exe directly (avoids the .cmd shim)
-      local function netcoredbg_cmd()
-        local mason = vim.fn.stdpath("data") .. "/mason"
-        local iswin = vim.uv.os_uname().sysname:lower():find("windows") ~= nil
-        local exe = mason .. "/packages/netcoredbg/netcoredbg/netcoredbg" .. (iswin and ".exe" or "")
-        if vim.fn.filereadable(exe) == 1 then
-          return exe
-        end
-        return "netcoredbg" -- fallback: rely on PATH
-      end
-
-      dap.adapters.coreclr = {
-        type = "executable",
-        command = netcoredbg_cmd(),
-        args = { "--interpreter=vscode" },
-      }
-
-      dap.configurations.cs = {
-        {
-          type = "coreclr",
-          name = "launch - netcoredbg",
-          request = "launch",
-          program = function()
-            -- Point at your built DLL (run `dotnet build` first)
-            return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
-          end,
-        },
-        {
-          -- For a process already started with `dotnet run` (e.g. GSCLite's web app,
-          -- or something started outside nvim-dap entirely). Filtered to "GSCLite" by
-          -- default since that's the apphost name this repo's web app runs as; widen
-          -- or drop the filter to attach to something else.
-          type = "coreclr",
-          name = "attach - netcoredbg",
-          request = "attach",
-          processId = function() return require("dap.utils").pick_process({ filter = "GSCLite" }) end,
-        },
-      }
     end,
   },
 }

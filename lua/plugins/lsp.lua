@@ -49,7 +49,6 @@ return {
         "markdownlint-cli2",
         "markdown-toc",
         "roslyn-language-server",
-        "netcoredbg", -- .NET debug adapter (used by nvim-dap, see dap.lua)
       },
     },
   },

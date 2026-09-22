@@ -48,27 +48,30 @@ vim.keymap.set("n", "gl", vim.diagnostic.open_float, { desc = "Line diagnostics"
 vim.keymap.set("n", "<F8>", "]c", { desc = "Next diff/conflict" })
 vim.keymap.set("n", "<F7>", "[c", { desc = "Previous diff/conflict" })
 
--- Merge resolution: take the hunk under the cursor from LOCAL/BASE/REMOTE into
--- MERGED. `:diffget LO` matches against full buffer names (path included), so a
--- file like deploy.yml matches "LO" in every window; resolving by buffer number
+-- Merge resolution: take the hunk under the cursor (or, with whole_file=true,
+-- every hunk in the file at once) from LOCAL/BASE/REMOTE into MERGED.
+-- `:diffget LO` matches against full buffer names (path included), so a file
+-- like deploy.yml matches "LO" in every window; resolving by buffer number
 -- avoids that entirely.
-local function diffget_from(which)
+local function diffget_from(which, whole_file)
   return function()
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
       local buf = vim.api.nvim_win_get_buf(win)
       -- git mergetool names the temp files <name>_LOCAL_<pid>.<ext> (underscores);
       -- also accept dots for other diff tooling.
       if vim.api.nvim_buf_get_name(buf):upper():find("[._]" .. which .. "[._]") then
-        vim.cmd(("diffget %d"):format(buf))
+        vim.cmd((whole_file and "%diffget %d" or "diffget %d"):format(buf))
         return
       end
     end
     vim.notify("No " .. which .. " buffer in this tab (not in a mergetool session?)", vim.log.levels.WARN)
   end
 end
-vim.keymap.set("n", "<leader>ml", diffget_from("LOCAL"), { desc = "Merge: take LOCAL (my branch)" })
-vim.keymap.set("n", "<leader>mr", diffget_from("REMOTE"), { desc = "Merge: take REMOTE (incoming)" })
-vim.keymap.set("n", "<leader>mb", diffget_from("BASE"), { desc = "Merge: take BASE (ancestor)" })
+vim.keymap.set("n", "<leader>ml", diffget_from("LOCAL"), { desc = "Merge: take LOCAL hunk (my branch)" })
+vim.keymap.set("n", "<leader>mr", diffget_from("REMOTE"), { desc = "Merge: take REMOTE hunk (incoming)" })
+vim.keymap.set("n", "<leader>mb", diffget_from("BASE"), { desc = "Merge: take BASE hunk (ancestor)" })
+vim.keymap.set("n", "<leader>mL", diffget_from("LOCAL", true), { desc = "Merge: take entire LOCAL file (my branch)" })
+vim.keymap.set("n", "<leader>mR", diffget_from("REMOTE", true), { desc = "Merge: take entire REMOTE file (incoming)" })
 
 -- Cheat sheet: open cheatsheet.md (in this config dir) in a vertical split.
 local function open_cheatsheet()
@@ -99,6 +102,18 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, { buffer = buf, desc = "Code action (selection)" })
     local client = vim.lsp.get_client_by_id(args.data.client_id)
     if client and client:supports_method("textDocument/completion") then
+      -- autotrigger only fires on the server's declared triggerCharacters
+      -- (".", "(", " ", ...) — plain identifier chars aren't among them, so
+      -- typing a variable/method name from scratch never pops the menu on
+      -- its own. Add word characters so any identifier char triggers it too.
+      local completion_provider = client.server_capabilities.completionProvider
+      if completion_provider then
+        local triggers = completion_provider.triggerCharacters or {}
+        for c in ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"):gmatch(".") do
+          table.insert(triggers, c)
+        end
+        completion_provider.triggerCharacters = triggers
+      end
       vim.lsp.completion.enable(true, client.id, buf, { autotrigger = true })
     end
   end,
